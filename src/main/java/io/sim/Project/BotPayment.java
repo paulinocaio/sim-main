@@ -17,13 +17,11 @@ public class BotPayment extends Thread {
 
     @Override
     public void run() {
-        // Lógica para gerar pagamentos aos motoristas
-        // Deve observar os sinais gerados pelos Cars e processar os pagamentos
     }
 
-    public void payDriver(double distance, Driver driver) {
+    public void payDriver(double PaymentToReceive, Driver driver) {
         if (driver != null) {
-            double payment = distance * 3.25; // R$3,25 por km
+            double payment = PaymentToReceive; // R$3,25 por km
             driver.getAccount().updateBalance(payment, TransactionType.DEPOSIT);
             System.out.println("Pagamento de R$" + payment + " realizado ao motorista " + driver.getId());
         } else {

@@ -12,7 +12,7 @@ public class App {
         AlphaBank alphaBank = new AlphaBank();
         alphaBank.createAccount("Company", "123");
         alphaBank.createAccount("Driver1", "123");
-        //alphaBank.createAccount("Driver2", "123");
+        alphaBank.createAccount("Driver2", "123");
         //alphaBank.createAccount("Driver3", "123");
         alphaBank.createAccount("fuelStation", "123");
 
@@ -21,8 +21,8 @@ public class App {
 
         Company company = new Company(alphaBank.getAccount("Company"));
 
-        for (int i = 0; i < 5; i++) {
-            String routeId = Integer.toString(i);
+        for (int i = 0; i < 100; i++) {
+            String routeId = Integer.toString(0);
             company.addRoute(new Route("data/dados2.xml", routeId));
             
             try {
@@ -32,8 +32,8 @@ public class App {
             }
         }
 
-        Driver driver1 = new Driver(alphaBank.getAccount("Driver1"), fuelStation);
-        //Driver driver2 = new Driver(alphaBank.getAccount("Driver2"), fuelStation);
+        Driver driver1 = new Driver(alphaBank.getAccount("Driver1"), fuelStation, company);
+        //Driver driver2 = new Driver(alphaBank.getAccount("Driver2"), fuelStation, company);
         //Driver driver3 = new Driver(alphaBank.getAccount("Driver3"), fuelStation);
 
         company.addDriver(driver1);
@@ -41,6 +41,5 @@ public class App {
         //company.addDriver(driver3);
 
         company.start();
-
     }
 }

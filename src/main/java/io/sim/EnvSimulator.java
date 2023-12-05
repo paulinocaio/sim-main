@@ -3,6 +3,7 @@ package io.sim;
 import java.io.IOException;
 
 import de.tudresden.sumo.objects.SumoColor;
+import io.sim.Project.Car;
 import it.polito.appeal.traci.SumoTraciConnection;
 
 public class EnvSimulator extends Thread{
@@ -39,7 +40,7 @@ public class EnvSimulator extends Thread{
 				int personNumber = 1;
 				SumoColor green = new SumoColor(0, 255, 0, 126);
 				Auto a1 = new Auto(true, "CAR1", green,"D1", sumo, 500, fuelType, fuelPreferential, fuelPrice, personCapacity, personNumber);
-				TransportService tS1 = new TransportService(true, "CAR1", i1, a1, sumo);
+				TransportService tS1 = new TransportService(true, "CAR1", i1, (Car) a1, sumo);
 				tS1.start();
                 Thread.sleep(5000);
 				a1.start();

@@ -24,6 +24,10 @@ public class Auto extends Thread {
 
 	private ArrayList<DrivingData> drivingRepport;
 	
+	public ArrayList<DrivingData> getDrivingRepport() {
+		return drivingRepport;
+	}
+
 	public Auto(boolean _on_off, String _idAuto, SumoColor _colorAuto, String _driverID, SumoTraciConnection _sumo, long _acquisitionRate,
 			int _fuelType, int _fuelPreferential, double _fuelPrice, int _personCapacity, int _personNumber) throws Exception {
 
@@ -124,8 +128,8 @@ public class Auto extends Thread {
 				//		"timestamp = " + this.drivingRepport.get(this.drivingRepport.size() - 1).getTimeStamp());
 				//System.out.println("X=" + this.drivingRepport.get(this.drivingRepport.size() - 1).getX_Position() + ", "
 				//		+ "Y=" + this.drivingRepport.get(this.drivingRepport.size() - 1).getY_Position());
-				System.out.println("speed = " + this.drivingRepport.get(this.drivingRepport.size() - 1).getSpeed());
-				System.out.println("odometer = " + this.drivingRepport.get(this.drivingRepport.size() - 1).getOdometer());
+				System.out.println("Speed = " + this.drivingRepport.get(this.drivingRepport.size() - 1).getSpeed());
+				System.out.println("dometer = " + this.drivingRepport.get(this.drivingRepport.size() - 1).getOdometer());
 				System.out.println("Fuel Consumption = "
 						+ this.drivingRepport.get(this.drivingRepport.size() - 1).getFuelConsumption());
 				//System.out.println("Fuel Type = " + this.fuelType);

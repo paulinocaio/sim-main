@@ -1,11 +1,18 @@
 package io.sim.Project;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import de.tudresden.sumo.cmd.Vehicle;
 import de.tudresden.sumo.objects.SumoColor;
 import io.sim.Auto;
+import io.sim.DrivingData;
 import it.polito.appeal.traci.SumoTraciConnection;
+
+import com.opencsv.CSVWriter;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Car extends Auto {
     private UUID ID;
@@ -18,6 +25,7 @@ public class Car extends Auto {
     private double MIN_FUEL_CAPACITY = 5;
     private SumoTraciConnection sumo;
     private double distance = 0.0;
+    public RouteData routeData;
 
     public Car(boolean _on_off, String _idAuto, SumoColor _colorAuto, String _driverID, SumoTraciConnection _sumo,
             long _acquisitionRate, int _fuelType, int _fuelPreferential, double _fuelPrice, int _personCapacity,
@@ -40,7 +48,6 @@ public class Car extends Auto {
 
                 if (fuelTank < MIN_FUEL_CAPACITY && !isWaitingForRefuel) {
                     setWaitingForRefuel(true);
-
                     waitToRefuel();
                 }
 
@@ -50,8 +57,6 @@ public class Car extends Auto {
                         distance = (double) sumo.do_job_get(Vehicle.getDistance(this.getIdAuto()));
                         consumeFuel();
                         Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -59,11 +64,18 @@ public class Car extends Auto {
                 }
             }
             if (this.sumo.isClosed() && currentRoute != null) {
-                driver.getBotPayment().payDriver(distance, driver);
+                driver.requestPayment(distance);
+                try {
+                    generateLog();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 currentRoute = null;
+                driver.getCompany().addExecutedRoute(currentRoute);
             }
             try {
-                Thread.sleep(200);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -78,6 +90,11 @@ public class Car extends Auto {
         if (!isAlive()) {
             this.start();
         }
+
+        // start da thread para obter os pontos
+        routeData = new RouteData(sumo, this, this.getCurrentEdges());
+        routeData.start();
+
     }
 
     private void consumeFuel() {
@@ -105,8 +122,6 @@ public class Car extends Auto {
             }
         }
 
-        // Abastecimento concluído, retoma a execução da rota
-        // System.out.println("Abastecimento concluído para o CARRO " + getID());
     }
 
     public void refuelTank(double liters) {
@@ -117,12 +132,6 @@ public class Car extends Auto {
         if (fuelTank > 45) {
             litersToPay = litersToPay - (fuelTank - 45);
         }
-
-        // try {
-        // Thread.sleep(20000);
-        // } catch (InterruptedException e) {
-        // e.printStackTrace();
-        // }
 
         driver.getBotPayment().payFuelStation(litersToPay, driver.getFuelStation());
         setWaitingForRefuel(false);
@@ -171,5 +180,48 @@ public class Car extends Auto {
 
     public Driver getDriver() {
         return driver;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    private void generateLog() throws IOException {
+        String path = "C:/Users/caio_/Desktop/sim-main/src/main/java/io/sim/Project/Report.csv";
+
+        CSVWriter writer = new CSVWriter(new FileWriter(path, true));
+
+        // Adicionar dados à linha
+        for (DrivingData report : super.getDrivingRepport()) {
+
+            String[] data = {
+                    String.valueOf(System.nanoTime()),
+                    getIdAuto(),
+                    report.getRouteIDSUMO(),
+                    String.valueOf(report.getSpeed()),
+                    String.valueOf(report.getOdometer()),
+                    String.valueOf(report.getFuelConsumption()),
+                    String.valueOf(report.getFuelType()),
+                    String.valueOf(report.getCo2Emission())
+            };
+
+            // Adicionar a linha ao arquivo CSV
+            writer.writeNext(data);
+        }
+    }
+
+    private ArrayList<String> getCurrentEdges() {
+        ArrayList<String> edge = new ArrayList<String>();
+        edge.clear();
+        String[] aux = this.currentRoute.getItinerary();
+
+        for (String e : aux[1].split(" ")) {
+            edge.add(e);
+        }
+        return edge;
     }
 }

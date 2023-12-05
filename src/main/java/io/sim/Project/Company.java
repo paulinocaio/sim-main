@@ -23,33 +23,45 @@ public class Company extends Thread {
 
     @Override
     public void run() {
+        double initialSize = routes.size();
         while (true) {
             if (routes.size() != 0) {
                 Driver availableDriver = getAvailableDriver();
-                
+
                 if (availableDriver != null) {
                     Route routeToExecute = routes.remove(0);
                     new Thread(() -> {
                         try {
                             availableDriver.setCurrentRoute(routeToExecute);
-                            if(!availableDriver.isAlive()){
+                            if (!availableDriver.isAlive()) {
                                 availableDriver.start();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    }).start();         
+                    }).start();
                 }
-                try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
             }
+
+            if(executedRoutes.size() == initialSize) {
+                for(Driver driver : drivers) {
+                    driver.calculate(1);
+                    driver.saveExcel(driver.getReconciliatedDistances(),"distanceData");
+                    driver.saveExcel(driver.getReconciliatedTimes(),"timeData");
+                    driver.createReconciliationFluxChart(driver.getReconciliatedDistances(), driver.getRawDistances(),"F1 distances", "Flux", "Distance");
+                }
+                break;
+            }
+
+            try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
         }
     }
-    
+
     public void addRoute(Route route) {
         routes.add(route);
     }
@@ -70,6 +82,10 @@ public class Company extends Thread {
         executedRoutes.add(route);
     }
 
+    public ArrayList<Driver> getDrivers() {
+        return drivers;
+    }
+
     public void addDriver(Driver driver) {
         drivers.add(driver);
     }
@@ -79,13 +95,14 @@ public class Company extends Thread {
     }
 
     private Driver getAvailableDriver() {
-        for(Driver driver : drivers) {
-            if(driver.isAvailable()) {
+        for (Driver driver : drivers) {
+            if (driver.isAvailable()) {
                 return driver;
             }
         }
         return null;
     }
+
     public BotPayment getBotPayment() {
         return botPayment;
     }
